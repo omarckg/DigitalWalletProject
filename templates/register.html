@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Mi Banco</title>
+    <style>
+        body {
+            background-color: #f8d3e0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .register-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .register-container h1 {
+            color: #5c2d5b;
+            margin-bottom: 10px;
+        }
+        .register-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .register-container button {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        .register-container button:hover {
+            background-color: #a4004f;
+        }
+        .login-link {
+            margin-top: 15px;
+            display: block;
+            color: #5c2d5b;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>Registro</h1>
+
+        <form action="/register" method="POST">
+            <input type="text" placeholder="Nombre" name="nombre" required>
+            <input type="text" placeholder="telefono" name="telefono" required>
+            <input type="text" placeholder="Cédula" name="cedula" required>
+            <select name="tipo_documento" required>
+                <option value="" disabled selected>Tipo de documento</option>
+                <option value="CC">Cédula de Ciudadanía</option>
+                <option value="TI">Tarjeta de Identidad</option>
+                <option value="CE">Cédula de Extranjería</option>
+                <option value="PAS">Pasaporte</option>
+            </select>
+            <select name="tipo_cuenta" required>
+                <option value="" disabled selected>Tipo de cuenta</option>
+                <option value="corriente">Corriente</option>
+                <option value="ahorros">Ahorros</option>
+            </select>
+            <input type="password" placeholder="Contraseña" name="contraseña" required>
+            <button type="submit">Registrarse</button>
+        </form>
+        
+        <a href="/logout" class="login-link">¿Ya tienes cuenta? Inicia sesión aquí</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturas</title>
+    <style>
+        body {
+            background-color: #f8d3e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .navbar {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-menu {
+            list-style: none;
+            display: flex;
+        }
+        .navbar-menu li {
+            margin: 0 15px;
+        }
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+        }
+        h1 {
+            text-align: center;
+        }
+        .section {
+            margin: 20px 0;
+        }
+        .section-title {
+            cursor: pointer;
+            color: #5c2d5b;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .service-container {
+            max-height: 0; /* Oculto por defecto */
+            overflow: hidden; /* Evita que se muestre el contenido */
+            transition: max-height 0.5s ease; /* Transición suave */
+        }
+        .service-container.show {
+            max-height: 500px; /* Ajusta según el contenido */
+        }
+        .service-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .service-card img {
+            width: 50px; /* Ajusta el tamaño del ícono */
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <ul class="navbar-menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="/recarga">Recargas</a></li>
+                <li><a href="/factura">Facturas</a></li>
+                <li><a href="#about">Acerca de</a></li>
+                <li><a href="#contact">Contacto</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <h1>Facturas</h1>
+
+    <div class="section">
+        <div class="section-title" onclick="toggleSection('publicos')">Servicios públicos</div>
+        <div class="service-container" id="publicos">
+            <div class="service-card">
+                <img src="{{ url_for('static', filename='img/Triple A.png') }}" alt="Triple A">
+                <p>Facturas Triple A</p>
+            </div>
+            <div class="service-card">
+                <img src="{{ url_for('static', filename='img/aire.jpg') }}" alt="Air-e">
+                <p>Facturas Air-e</p>
+            </div>
+            
+    </div>
+
+    <script>
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('show'); // Alterna la clase 'show'
+        }
+    </script>
+</body>
+</html>

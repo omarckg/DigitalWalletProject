@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #f8d3e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .navbar {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-menu {
+            list-style: none;
+            display: flex;
+        }
+        .navbar-menu li {
+            margin: 0 15px;
+        }
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+        }
+        .operator-container, .package-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .operator-card, .package-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+            width: 150px; /* Ajusta el ancho según sea necesario */
+            margin: 10px;
+            cursor: pointer;
+            transition: transform 0.2s; /* Transición para la animación */
+        }
+        .operator-card img, .package-card img {
+            width: 50px; /* Ajusta el tamaño del ícono */
+            height: 50px;
+        }
+        .operator-card:active, .package-card:active {
+            transform: translateY(4px); /* Efecto de hundimiento */
+        }
+        .package-container {
+            max-height: 0; /* Oculto por defecto */
+            overflow: hidden; /* Evita que se muestre el contenido */
+            transition: max-height 0.5s ease; /* Transición suave */
+        }
+        .package-container.show {
+            max-height: 500px; /* Ajusta según el contenido */
+        }
+        .button {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #a4004f;
+        }
+    </style>
+    <title>Recargas Telefónicas</title>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <ul class="navbar-menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="Recarga.html">Recargas</a></li>
+                <li><a href="#about">Acerca de</a></li>
+                <li><a href="#contact">Contacto</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <h1>Recargas Telefónicas</h1>
+    
+    <div class="operator-container">
+        <h2>Selecciona tu operador</h2>
+        <div class="operator-card" onclick="selectOperator('Claro')">
+            <img src="{{ url_for('static', filename='img/Claro.jpg') }}" alt="Claro">
+            <p>Claro</p>
+        </div>
+        <div class="operator-card" onclick="selectOperator('Movistar')">
+            <img src="{{ url_for('static', filename='img/Movistar.jpg') }}" alt="Movistar">
+            <p>Movistar</p>
+        </div>
+        <div class="operator-card" onclick="selectOperator('Tigo')">
+            <img src="{{ url_for('static', filename='img/TIGO.jpg') }}" alt="Tigo">
+            <p>Tigo</p>
+        </div>
+        <div class="operator-card" onclick="selectOperator('WOM')">
+            <img src="{{ url_for('static', filename='img/WOM.png') }}" alt="WOM">
+            <p>WOM</p>
+        </div>
+    </div>
+
+    <div class="package-container" id="packageContainer">
+        <h2>Selecciona un paquete</h2>
+        <div class="package-card" onclick="confirmRecharge('Paquete de 10')">
+            <img src="https://img.icons8.com/ios-filled/50/000000/smartphone.png" alt="Paquete de 10">
+            <p>Paquete de 10</p>
+        </div>
+        <div class="package-card" onclick="confirmRecharge('Paquete de 20')">
+            <img src="https://img.icons8.com/ios-filled/50/000000/smartphone.png" alt="Paquete de 20">
+            <p>Paquete de 20</p>
+        </div>
+        <div class="package-card" onclick="confirmRecharge('Paquete de 30')">
+            <img src="https://img.icons8.com/ios-filled/50/000000/smartphone.png" alt="Paquete de 30">
+            <p>Paquete de 30</p>
+        </div>
+    </div>
+
+    <script>
+        let selectedOperator = '';
+        let currentPackageContainer = null;
+
+        function selectOperator(operator) {
+            const packageContainer = document.getElementById('packageContainer');
+
+            // Si el operador seleccionado es el mismo, ocultar el contenedor
+            if (selectedOperator === operator) {
+                packageContainer.classList.remove('show');
+                selectedOperator = '';
+            } else {
+                // Si se selecciona un nuevo operador, mostrar el contenedor
+                selectedOperator = operator;
+                packageContainer.classList.add('show'); // Agrega la clase para mostrar
+            }
+        }
+
+        function confirmRecharge(packageName) {
+            alert(`Recarga de ${packageName} para ${selectedOperator} confirmada.`);
+            // Aquí puedes agregar la lógica para procesar la recarga
+        }
+    </script>
+</body>
+</html>

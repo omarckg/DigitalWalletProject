@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #f8d3e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-menu {
+            list-style: none;
+            display: flex;
+        }
+        .navbar-menu li {
+            margin: 0 15px;
+        }
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+        }
+        .container {
+            padding: 20px;
+        }
+        .balance-card {
+            background-color: #5c2d5b;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .balance-card h2 {
+            margin: 0;
+        }
+        .balance-card p {
+            margin: 5px 0;
+        }
+        .services {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .service-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+            width: 30%; /* Ajusta el ancho según sea necesario */
+            margin: 10px;
+            cursor: pointer; /* Cambia el cursor al pasar sobre la tarjeta */
+        }
+        .service-card img {
+            width: 50px; /* Ajusta el tamaño del ícono */
+            height: 50px;
+        }
+        .button {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #a4004f;
+        }
+        /* Estilos para el modal */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1; /* Encima de otros elementos */
+            left: 0;
+            top: 0;
+            width: 100%; /* Ancho completo */
+            height: 100%; /* Alto completo */
+            overflow: auto; /* Habilita el desplazamiento si es necesario */
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto; /* 15% desde la parte superior y centrado */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Ancho del modal */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+    <title>Digital Wallet</title>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <ul class="navbar-menu">
+                <li><a href="#home">Inicio</a></li>
+                <li><a href="#services">Servicios</a></li>
+                <li><a href="#about">Acerca de</a></li>
+                <li><a href="#contact">Contacto</a></li>
+                <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="balance-card">
+            <h2>Hola, {{ session['nombre'] }}</h2>
+            <p>Depósito Bajo Monto</p>
+            
+            <h1>$ 0</h1>
+            <p>Total $ 0</p>
+            <button class="button">Recarga</button>
+        </div>
+        <h3>Servicios</h3>
+        <div class="services">
+            <div  class="service-card" onclick="window.location.href='/factura'"">
+                <img src="https://img.icons8.com/ios-filled/50/000000/bill.png" alt="Pago de Factura">
+                <p>Pago de Factura</p>
+            </div>
+            <div class="service-card" onclick="window.location.href='/recarga'">
+                <img src="https://img.icons8.com/ios-filled/50/000000/mobile-payment.png" alt="Recarga Telefónica">
+                <p>Recarga Telefónica</p>
+            </div>
+            <div class="service-card" onclick="openWithdrawModal()">
+                <img src="https://img.icons8.com/ios-filled/50/000000/atm.png" alt="Retiros">
+                <p>Retiros</p>
+            </div>
+            <div class="service-card" onclick="openSendModal()">
+                <img src="https://img.icons8.com/ios-filled/50/000000/send.png" alt="Envío">
+                <p>Envío</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Envío -->
+    <div id="sendModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('sendModal')">&times;</span>
+            <h2>Opciones para enviar</h2>
+            <button class="button" onclick="sendVia('Nequi')" style="margin-bottom: 10px;">Necli - Número de cel</button>
+            <button class="button" onclick="sendVia('Bancos')">Bancos - Número de cuenta a bancos</button>
+        </div>
+    </div>
+
+    <!-- Modal para Retiros -->
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('withdrawModal')">&times;</span>
+            <h2>Opciones para retiros</h2>
+            <button class="button" style="margin-bottom: 10px;">Punto físico</button>
+            <button class="button" style="margin-bottom: 10px;">Cajero: Corresponsales</button>
+        </div>
+    </div>
+
+    <script>
+        function openSendModal() {
+            document.getElementById("sendModal").style.display = "block";
+        }
+
+        function openWithdrawModal() {
+            document.getElementById("withdrawModal").style.display = "block";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        // Cerrar el modal si se hace clic fuera de él
+        window.onclick = function(event) {
+            const sendModal = document.getElementById("sendModal");
+            const withdrawModal = document.getElementById("withdrawModal");
+            if (event.target === sendModal) {
+                closeModal('sendModal');
+            } else if (event.target === withdrawModal) {
+                closeModal('withdrawModal');
+            }
+        }
+    </script>
+</body>
+</html>
