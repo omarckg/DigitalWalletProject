@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 import bcrypt
 import os
 import mysql.connector
+from mysql.connector import Error
 
 app = Flask(__name__)
 
@@ -74,8 +75,113 @@ def login():
 @app.route('/dashboard')
 def dashboard():
    
+   
     return render_template('index.html')
 
+@app.route('/envio_necli', methods=['GET', 'POST'])
+def envio_necli():
+    if request.method == 'POST':
+        telefono = request.form['telefono']
+        monto = request.form['monto']
+        mensaje = request.form['mensaje']
+        
+        try:
+            # Conectar a la base de datos
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            
+            # Insertar en la tabla necli
+            cursor.execute("INSERT INTO necli (telefono, monto, mensaje) VALUES (%s, %s, %s)", (telefono, monto, mensaje))
+            conn.commit()
+            
+            # Obtener el id del nuevo registro en necli
+            id_necli = cursor.lastrowid
+            
+            # Guardar el id_necli en la sesión
+            session['id_necli'] = id_necli
+            
+            flash('Envío registrado exitosamente', 'success')
+        except Error as e:
+            flash(f'Error al guardar los datos: {e}', 'danger')
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+        
+        # Redirigir a la página principal después de registrar el envío
+        return redirect(url_for('dashboard'))  # Cambia 'home' por la función que maneja la página principal
+    
+    return render_template('envio_necli.html')
+
+@app.route('/envio_banco', methods=['GET', 'POST'])
+def envio_banco():
+    if request.method == 'POST':
+        nombre_recibe = request.form['nombre_recibe']
+        tipo_documento = request.form['tipo_documento']
+        documento = request.form['documento']
+        banco = request.form['banco']
+        tipo_cuenta = request.form['tipo_cuenta']
+        numero_cuenta = request.form['numero_cuenta']
+        monto = request.form['monto']
+        
+        try:
+            # Conectar a la base de datos
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            
+            # Insertar en la tabla correspondiente
+            cursor.execute("""
+                INSERT INTO envios_banco (nombre_recibe, tipo_documento, documento, banco, tipo_cuenta, numero_cuenta, monto)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (nombre_recibe, tipo_documento, documento, banco, tipo_cuenta, numero_cuenta, monto))
+            conn.commit()
+            
+            # Guardar el id_banco en la sesión
+            session['id_banco'] = cursor.lastrowid
+            
+            flash('Envío a banco registrado exitosamente', 'success')
+        except Error as e:
+            flash(f'Error al guardar los datos: {e}', 'danger')
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+        
+        return render_template('envio_banco.html')
+
+    return render_template('envio_banco.html')
+
+@app.route('/movimiento_finalizado')
+def movimiento_finalizado():
+    id_necli = session.get('id_necli')
+    id_banco = session.get('id_banco')
+    
+    if id_necli and id_banco:
+        try:
+            # Conectar a la base de datos
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            
+            # Insertar en la tabla movimientos
+            cursor.execute("INSERT INTO movimientos (id_necli, id_banco) VALUES (%s, %s)", (id_necli, id_banco))
+            conn.commit()
+            
+            flash('Movimiento registrado exitosamente', 'success')
+        except Error as e:
+            flash(f'Error al registrar el movimiento: {e}', 'danger')
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+        
+        # Limpiar la sesión
+        session.pop('id_necli', None)
+        session.pop('id_banco', None)
+        
+        return redirect(url_for('dashboard'))  # Redirigir a donde desees después de registrar
+    else:
+        flash('No se pudo registrar el movimiento', 'danger')
+        return redirect(url_for('dashboard'))
 
 @app.route('/recarga')
 def recarga():
@@ -93,7 +199,7 @@ def register():
         cedula = request.form['cedula']
         tipo_documento = request.form['tipo_documento']
         contraseña = request.form['contraseña']
-        tipo_cuenta = request.form['tipo_cuenta']  # Obtener el tipo de cuenta del formulario
+         # Obtener el tipo de cuenta del formulario
 
         # Encriptar la contraseña
         hashed_password = bcrypt.hashpw(contraseña.encode('utf-8'), bcrypt.gensalt())
@@ -103,22 +209,14 @@ def register():
         cursor = conn.cursor()
 
         # Insertar datos en la tabla cuenta
-        query_cuenta = """
-        INSERT INTO cuenta (saldo, tipo_cuenta)
-        VALUES (0, %s)  # Asignar saldo inicial de 0
-        """
-        cursor.execute(query_cuenta, (tipo_cuenta,))
-        conn.commit()
-
-        # Obtener el id de la cuenta recién creada
-        id_cuenta = cursor.lastrowid
+        
 
         # Insertar datos en la tabla clientes
         query_cliente = """
-        INSERT INTO clientes (nombre, telefono, cedula, tipo_documento, contraseña, id_cuenta)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO clientes (nombre, telefono, cedula, tipo_documento, contraseña)
+        VALUES (%s, %s, %s, %s, %s)
         """
-        cursor.execute(query_cliente, (nombre, telefono, cedula, tipo_documento, hashed_password, id_cuenta))
+        cursor.execute(query_cliente, (nombre, telefono, cedula, tipo_documento, hashed_password))
         conn.commit()
 
         cursor.close()

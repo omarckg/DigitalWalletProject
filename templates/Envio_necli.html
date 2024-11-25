@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envía Plata</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #4a154b;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4a154b;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .button {
+            background-color: #f06292;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .button:hover {
+            background-color: #e91e63;
+        }
+        .info {
+            color: #888;
+            font-size: 14px;
+        }
+        .success-message {
+            color: green;
+            font-size: 16px;
+            margin-top: 20px;
+            display: none;
+        }
+        body {
+            background-color: #f8d3e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-menu {
+            list-style: none;
+            display: flex;
+        }
+        .navbar-menu li {
+            margin: 0 15px;
+        }
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+        }
+        .container {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <ul class="navbar-menu">
+                <li><a href="#home">Inicio</a></li>
+                <li><a href="#services">Servicios</a></li>
+                <li><a href="#about">Acerca de</a></li>
+                <li><a href="#contact">Contacto</a></li>
+                <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container" style="text-align: center;">
+        <h1>Envía plata</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        <form method="POST" action="/envio_necli">
+            <label for="cel">Cel</label>
+            <input type="text" id="telefono" name="telefono" placeholder="Número de celular" style="margin-bottom: 10px;">
+            <div class="info" style="margin-bottom: 10px;">Revisa bien el número para enviarle a la persona correcta</div>
+            
+            <label for="monto">¿Cuánto?</label>
+            <input type="number" id="monto" name="monto" placeholder="Monto" style="margin-bottom: 10px;">
+            
+            <label for="mensaje">Mensaje</label>
+            <input type="text" id="mensaje" name="mensaje" placeholder="Mensaje" style="margin-bottom: 10px;">
+            
+            
+            <button type="submit" class="button" style="margin-top: 20px;">Sigue</button>
+        </form>
+        <div id="success-message" class="success-message" style="margin-top: 20px;">Envío exitoso</div>
+    </div>
+</body>
+</html>

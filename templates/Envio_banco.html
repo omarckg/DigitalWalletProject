@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar a Banco</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #4a154b;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4a154b;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .button {
+            background-color: #f06292;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .button:hover {
+            background-color: #e91e63;
+        }
+        .info {
+            color: #888;
+            font-size: 14px;
+        }body {
+            background-color: #f8d3e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-menu {
+            list-style: none;
+            display: flex;
+        }
+        .navbar-menu li {
+            margin: 0 15px;
+        }
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+        }
+        .container {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <ul class="navbar-menu">
+                <li><a href="#home">Inicio</a></li>
+                <li><a href="#services">Servicios</a></li>
+                <li><a href="#about">Acerca de</a></li>
+                <li><a href="#contact">Contacto</a></li>
+                <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Enviar a Banco</h1>
+        <form method="POST" action="/envio_banco">
+            <label for="nombre_recibe">Nombre de quien recibe</label>
+            <input type="text" id="nombre_recibe" name="nombre_recibe" placeholder="Nombre de quien recibe" required>
+
+            <label for="tipo_documento">Tipo de documento</label>
+            <select id="tipo_documento" name="tipo_documento" required>
+                <option value="" disabled selected>Selecciona tipo de documento</option>
+                <option value="CC">Cédula de Ciudadanía</option>
+                <option value="TI">Tarjeta de Identidad</option>
+                <option value="CE">Cédula de Extranjería</option>
+                <option value="PAS">Pasaporte</option>
+            </select>
+
+            <label for="documento">Documento de esa persona</label>
+            <input type="text" id="documento" name="documento" placeholder="Número de documento" required>
+
+            <label for="banco">Banco</label>
+            <input type="text" id="banco" name="banco" placeholder="Nombre del banco" required>
+
+            <label for="tipo_cuenta">Tipo de cuenta</label>
+            <select id="tipo_cuenta" name="tipo_cuenta" required>
+                <option value="" disabled selected>Selecciona tipo de cuenta</option>
+                <option value="Ahorros">Ahorros</option>
+                <option value="Corriente">Corriente</option>
+            </select>
+
+            <label for="numero_cuenta">Número de cuenta</label>
+            <input type="text" id="numero_cuenta" name="numero_cuenta" placeholder="Número de cuenta" required>
+
+            <label for="monto">¿Cuánto?</label>
+            <input type="number" id="monto" name="monto" placeholder="Monto" required>
+
+            <button type="submit" class="button">Listo</button>
+        </form>
+    </div>
+</body>
+</html>
