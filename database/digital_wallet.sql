@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 20-11-2024 a las 18:53:52
+-- Tiempo de generación: 25-11-2024 a las 03:55:12
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -24,6 +24,23 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `banco`
+--
+
+CREATE TABLE `banco` (
+  `id` int(11) NOT NULL,
+  `nombre_det` varchar(100) DEFAULT NULL,
+  `tipo_doc` varchar(50) DEFAULT NULL,
+  `numero_doc` varchar(50) DEFAULT NULL,
+  `nombre_banco` varchar(100) DEFAULT NULL,
+  `tipo_cuenta` varchar(50) DEFAULT NULL,
+  `monto` decimal(10,2) DEFAULT NULL,
+  `mensaje` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `clientes`
 --
 
@@ -34,41 +51,15 @@ CREATE TABLE `clientes` (
   `cedula` varchar(20) NOT NULL,
   `tipo_documento` varchar(50) DEFAULT NULL,
   `telefono` varchar(50) DEFAULT NULL,
-  `id_cuenta` int(11) DEFAULT NULL
+  `id_movimientos` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `clientes`
 --
 
-INSERT INTO `clientes` (`id`, `nombre`, `contraseña`, `cedula`, `tipo_documento`, `telefono`, `id_cuenta`) VALUES
-(9, 'lala', '$2b$12$sbd5897Mkji/chBJNgSHGOc6G3gkY5GOekDIUY1o.wffAupImcQ6K', 'qweqeqwe', 'CE', '3002001011', 4),
-(10, 'ruben', '$2b$12$w7V0q6KIFr9pF58l0Y83IusVdmpWmOC0Sr44QknzdBqEYcNQ6B2Ve', '123213', 'PAS', '3002001012', 5),
-(11, 'omar', '$2b$12$ae1Y73Oqu9inkkPIyGKhpeEyD7jfBeAf.fhUKSmumAVFan4YyOhs.', 'q1231233', 'CC', '3004616855', 6);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `cuenta`
---
-
-CREATE TABLE `cuenta` (
-  `id` int(11) NOT NULL,
-  `saldo` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `tipo_cuenta` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `cuenta`
---
-
-INSERT INTO `cuenta` (`id`, `saldo`, `tipo_cuenta`) VALUES
-(1, 0.00, 'corriente'),
-(2, 0.00, 'ahorros'),
-(3, 0.00, 'corriente'),
-(4, 0.00, 'corriente'),
-(5, 0.00, 'ahorros'),
-(6, 0.00, 'corriente');
+INSERT INTO `clientes` (`id`, `nombre`, `contraseña`, `cedula`, `tipo_documento`, `telefono`, `id_movimientos`) VALUES
+(12, 'omar', '$2b$12$qO2KakqK0tbKTmiPDgNPCuyw0UqWJlFJCOELy9vYgWuOyn.P/Zb1e', '1193043019', 'CC', '3004616855', NULL);
 
 -- --------------------------------------------------------
 
@@ -85,30 +76,46 @@ CREATE TABLE `logs` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `transacciones`
+-- Estructura de tabla para la tabla `movimientos`
 --
 
-CREATE TABLE `transacciones` (
+CREATE TABLE `movimientos` (
   `id` int(11) NOT NULL,
-  `cliente_id` int(11) DEFAULT NULL,
-  `tipo` varchar(50) DEFAULT NULL,
+  `id_necli` int(11) DEFAULT NULL,
+  `id_banco` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `necli`
+--
+
+CREATE TABLE `necli` (
+  `id` int(11) NOT NULL,
+  `telefono` varchar(15) DEFAULT NULL,
   `monto` decimal(10,2) DEFAULT NULL,
-  `fecha` timestamp NOT NULL DEFAULT current_timestamp()
+  `mensaje` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Disparadores `transacciones`
+-- Volcado de datos para la tabla `necli`
 --
-DELIMITER $$
-CREATE TRIGGER `after_transaction_insert` AFTER INSERT ON `transacciones` FOR EACH ROW BEGIN
-    INSERT INTO logs (descripcion) VALUES (CONCAT('Transacción registrada: ID ', NEW.id));
-END
-$$
-DELIMITER ;
+
+INSERT INTO `necli` (`id`, `telefono`, `monto`, `mensaje`) VALUES
+(1, '3004616855', 10000.00, 'o'),
+(2, '3004616855', 20000.00, 'oila'),
+(3, '3004616855', 10000.00, 'o');
 
 --
 -- Índices para tablas volcadas
 --
+
+--
+-- Indices de la tabla `banco`
+--
+ALTER TABLE `banco`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `clientes`
@@ -116,13 +123,7 @@ DELIMITER ;
 ALTER TABLE `clientes`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `cedula` (`cedula`),
-  ADD KEY `fk_id_cuenta` (`id_cuenta`);
-
---
--- Indices de la tabla `cuenta`
---
-ALTER TABLE `cuenta`
-  ADD PRIMARY KEY (`id`);
+  ADD KEY `fk_id_movimientos` (`id_movimientos`);
 
 --
 -- Indices de la tabla `logs`
@@ -131,27 +132,34 @@ ALTER TABLE `logs`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `transacciones`
+-- Indices de la tabla `movimientos`
 --
-ALTER TABLE `transacciones`
+ALTER TABLE `movimientos`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `cliente_id` (`cliente_id`);
+  ADD KEY `id_necli` (`id_necli`),
+  ADD KEY `id_banco` (`id_banco`);
+
+--
+-- Indices de la tabla `necli`
+--
+ALTER TABLE `necli`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
+-- AUTO_INCREMENT de la tabla `banco`
+--
+ALTER TABLE `banco`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT de la tabla `cuenta`
---
-ALTER TABLE `cuenta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `logs`
@@ -160,10 +168,16 @@ ALTER TABLE `logs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `transacciones`
+-- AUTO_INCREMENT de la tabla `movimientos`
 --
-ALTER TABLE `transacciones`
+ALTER TABLE `movimientos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `necli`
+--
+ALTER TABLE `necli`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restricciones para tablas volcadas
@@ -173,13 +187,14 @@ ALTER TABLE `transacciones`
 -- Filtros para la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  ADD CONSTRAINT `fk_id_cuenta` FOREIGN KEY (`id_cuenta`) REFERENCES `cuenta` (`id`);
+  ADD CONSTRAINT `fk_id_movimientos` FOREIGN KEY (`id_movimientos`) REFERENCES `movimientos` (`id`);
 
 --
--- Filtros para la tabla `transacciones`
+-- Filtros para la tabla `movimientos`
 --
-ALTER TABLE `transacciones`
-  ADD CONSTRAINT `transacciones_ibfk_1` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id`);
+ALTER TABLE `movimientos`
+  ADD CONSTRAINT `movimientos_ibfk_1` FOREIGN KEY (`id_necli`) REFERENCES `necli` (`id`),
+  ADD CONSTRAINT `movimientos_ibfk_2` FOREIGN KEY (`id_banco`) REFERENCES `banco` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
