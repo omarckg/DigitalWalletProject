@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-11-2024 a las 03:55:12
+-- Tiempo de generación: 26-11-2024 a las 00:23:52
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -35,8 +35,16 @@ CREATE TABLE `banco` (
   `nombre_banco` varchar(100) DEFAULT NULL,
   `tipo_cuenta` varchar(50) DEFAULT NULL,
   `monto` decimal(10,2) DEFAULT NULL,
-  `mensaje` varchar(255) DEFAULT NULL
+  `numero_cuenta` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `banco`
+--
+
+INSERT INTO `banco` (`id`, `nombre_det`, `tipo_doc`, `numero_doc`, `nombre_banco`, `tipo_cuenta`, `monto`, `numero_cuenta`) VALUES
+(5, 'omar', 'CC', '1423432', '234324', 'Ahorros', 99999999.99, '234324324'),
+(6, 'omar', 'CC', '1193043019', 'necli', 'Ahorros', 10000.00, '12312321323');
 
 -- --------------------------------------------------------
 
@@ -51,15 +59,16 @@ CREATE TABLE `clientes` (
   `cedula` varchar(20) NOT NULL,
   `tipo_documento` varchar(50) DEFAULT NULL,
   `telefono` varchar(50) DEFAULT NULL,
-  `id_movimientos` int(11) DEFAULT NULL
+  `saldo` decimal(10,2) DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `clientes`
 --
 
-INSERT INTO `clientes` (`id`, `nombre`, `contraseña`, `cedula`, `tipo_documento`, `telefono`, `id_movimientos`) VALUES
-(12, 'omar', '$2b$12$qO2KakqK0tbKTmiPDgNPCuyw0UqWJlFJCOELy9vYgWuOyn.P/Zb1e', '1193043019', 'CC', '3004616855', NULL);
+INSERT INTO `clientes` (`id`, `nombre`, `contraseña`, `cedula`, `tipo_documento`, `telefono`, `saldo`) VALUES
+(12, 'omar', '$2b$12$qO2KakqK0tbKTmiPDgNPCuyw0UqWJlFJCOELy9vYgWuOyn.P/Zb1e', '1193043019', 'CC', '3004616855', 243800.00),
+(13, 'ruben', '$2b$12$gWslTGWxO1IFKm6/I/jwweTgpIrh/DK6kdS.hkI4c491ZmVVPxsVC', '100', 'CC', '3002001011', 105000.00);
 
 -- --------------------------------------------------------
 
@@ -71,18 +80,6 @@ CREATE TABLE `logs` (
   `id` int(11) NOT NULL,
   `descripcion` text DEFAULT NULL,
   `fecha` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `movimientos`
---
-
-CREATE TABLE `movimientos` (
-  `id` int(11) NOT NULL,
-  `id_necli` int(11) DEFAULT NULL,
-  `id_banco` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -103,9 +100,12 @@ CREATE TABLE `necli` (
 --
 
 INSERT INTO `necli` (`id`, `telefono`, `monto`, `mensaje`) VALUES
-(1, '3004616855', 10000.00, 'o'),
-(2, '3004616855', 20000.00, 'oila'),
-(3, '3004616855', 10000.00, 'o');
+(5, '3002001011', 100000.00, 'ola'),
+(6, '3004616855', 20000.00, 'ola'),
+(7, '3002001011', 10000.00, 'olii'),
+(8, '3004616855', 30000.00, 'ola'),
+(9, '3004616855', 100000.00, 'ola'),
+(10, '3004616855', 200000.00, 'ola');
 
 --
 -- Índices para tablas volcadas
@@ -122,22 +122,13 @@ ALTER TABLE `banco`
 --
 ALTER TABLE `clientes`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `cedula` (`cedula`),
-  ADD KEY `fk_id_movimientos` (`id_movimientos`);
+  ADD UNIQUE KEY `cedula` (`cedula`);
 
 --
 -- Indices de la tabla `logs`
 --
 ALTER TABLE `logs`
   ADD PRIMARY KEY (`id`);
-
---
--- Indices de la tabla `movimientos`
---
-ALTER TABLE `movimientos`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_necli` (`id_necli`),
-  ADD KEY `id_banco` (`id_banco`);
 
 --
 -- Indices de la tabla `necli`
@@ -153,13 +144,13 @@ ALTER TABLE `necli`
 -- AUTO_INCREMENT de la tabla `banco`
 --
 ALTER TABLE `banco`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `logs`
@@ -168,33 +159,10 @@ ALTER TABLE `logs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `movimientos`
---
-ALTER TABLE `movimientos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de la tabla `necli`
 --
 ALTER TABLE `necli`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `clientes`
---
-ALTER TABLE `clientes`
-  ADD CONSTRAINT `fk_id_movimientos` FOREIGN KEY (`id_movimientos`) REFERENCES `movimientos` (`id`);
-
---
--- Filtros para la tabla `movimientos`
---
-ALTER TABLE `movimientos`
-  ADD CONSTRAINT `movimientos_ibfk_1` FOREIGN KEY (`id_necli`) REFERENCES `necli` (`id`),
-  ADD CONSTRAINT `movimientos_ibfk_2` FOREIGN KEY (`id_banco`) REFERENCES `banco` (`id`);
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

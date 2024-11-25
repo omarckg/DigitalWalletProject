@@ -91,25 +91,17 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <a href="/dashboard" class="navbar-logo" style="color: white;">NECLI</a>
             <ul class="navbar-menu">
-                <li><a href="#home">Inicio</a></li>
-                <li><a href="#services">Servicios</a></li>
-                <li><a href="#about">Acerca de</a></li>
-                <li><a href="#contact">Contacto</a></li>
+                <li><a href="/dashboard">Inicio</a></li>
+                <li><a href='/factura'>Servicios</a></li>
+                <li><a href="/movimientos">Movimientos</a></li>
                 <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
             </ul>
         </div>
     </nav>
     <div class="container" style="text-align: center;">
         <h1>Envía plata</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
         <form method="POST" action="/envio_necli">
             <label for="cel">Cel</label>
             <input type="text" id="telefono" name="telefono" placeholder="Número de celular" style="margin-bottom: 10px;">

@@ -70,13 +70,12 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <a href="/dashboard" class="navbar-logo" style="color: white;">NECLI</a>
             <ul class="navbar-menu">
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="/recarga">Recargas</a></li>
-                <li><a href="/factura">Facturas</a></li>
-                <li><a href="#about">Acerca de</a></li>
-                <li><a href="#contact">Contacto</a></li>
+                <li><a href="/dashboard">Inicio</a></li>
+                <li><a href='/factura'>Servicios</a></li>
+                <li><a href="/movimientos">Movimientos</a></li>
+                <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
             </ul>
         </div>
     </nav>
@@ -86,11 +85,11 @@
     <div class="section">
         <div class="section-title" onclick="toggleSection('publicos')">Servicios públicos</div>
         <div class="service-container" id="publicos">
-            <div class="service-card">
+            <div class="service-card" onclick="window.location.href='/pago_triA';" style="cursor: pointer;">
                 <img src="{{ url_for('static', filename='img/Triple A.png') }}" alt="Triple A">
                 <p>Facturas Triple A</p>
             </div>
-            <div class="service-card">
+            <div class="service-card" onclick="window.location.href='/pago_aire';" style="cursor: pointer;">
                 <img src="{{ url_for('static', filename='img/aire.jpg') }}" alt="Air-e">
                 <p>Facturas Air-e</p>
             </div>

@@ -38,8 +38,6 @@ def login():
         cursor.execute(query, (telefono,))
         result = cursor.fetchone()
 
-        
-        
         if result is None:
             return redirect(url_for('home', error='El usuario y la contraseña son incorrectos.'))
 
@@ -47,12 +45,10 @@ def login():
         stored_password = result[1].encode('utf-8')
         if not bcrypt.checkpw(contraseña.encode('utf-8'), stored_password):
             return redirect(url_for('home', error='El usuario y la contraseña son incorrectos.'))
-    
-        # Almacenar el nombre en la sesión
+
+        # Almacenar el nombre y el teléfono en la sesión
         session['nombre'] = result[0]
-        
-        
-        
+        session['telefono'] = telefono  # Almacenar el teléfono en la sesión
 
         # Si las credenciales son correctas, redirigir al dashboard
         return redirect(url_for('dashboard'))
@@ -74,9 +70,31 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-   
-   
-    return render_template('index.html')
+    # Conectar a la base de datos
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+
+    try:
+        # Obtener el número de teléfono del usuario en sesión
+        telefono = session.get('telefono')  # Asegúrate de que el teléfono esté almacenado en la sesión
+
+        # Consultar el saldo del cliente
+        query = "SELECT saldo FROM clientes WHERE telefono = %s"
+        cursor.execute(query, (telefono,))
+        result = cursor.fetchone()
+
+        saldo = result[0] if result else 0  # Si no hay resultado, el saldo es 0
+
+    except Error as e:
+        print(f"Error al obtener el saldo: {e}")
+        saldo = 0  # En caso de error, establecer saldo a 0
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+    return render_template('index.html', saldo=saldo)  # Pasar el saldo a la plantilla
 
 @app.route('/envio_necli', methods=['GET', 'POST'])
 def envio_necli():
@@ -100,6 +118,10 @@ def envio_necli():
             # Guardar el id_necli en la sesión
             session['id_necli'] = id_necli
             
+            # Actualizar el saldo del cliente que recibe el dinero
+            cursor.execute("UPDATE clientes SET saldo = saldo + %s WHERE telefono = %s", (monto, telefono))
+            conn.commit()
+            
             flash('Envío registrado exitosamente', 'success')
         except Error as e:
             flash(f'Error al guardar los datos: {e}', 'danger')
@@ -109,17 +131,17 @@ def envio_necli():
                 conn.close()
         
         # Redirigir a la página principal después de registrar el envío
-        return redirect(url_for('dashboard'))  # Cambia 'home' por la función que maneja la página principal
+        return redirect(url_for('dashboard'))
     
     return render_template('envio_necli.html')
 
 @app.route('/envio_banco', methods=['GET', 'POST'])
 def envio_banco():
     if request.method == 'POST':
-        nombre_recibe = request.form['nombre_recibe']
-        tipo_documento = request.form['tipo_documento']
-        documento = request.form['documento']
-        banco = request.form['banco']
+        nombre_det = request.form['nombre_det']
+        tipo_doc = request.form['tipo_doc']
+        numero_doc = request.form['numero_doc']
+        nombre_banco = request.form['nombre_banco']
         tipo_cuenta = request.form['tipo_cuenta']
         numero_cuenta = request.form['numero_cuenta']
         monto = request.form['monto']
@@ -131,15 +153,19 @@ def envio_banco():
             
             # Insertar en la tabla correspondiente
             cursor.execute("""
-                INSERT INTO envios_banco (nombre_recibe, tipo_documento, documento, banco, tipo_cuenta, numero_cuenta, monto)
+                INSERT INTO banco (nombre_det, tipo_doc, numero_doc, nombre_banco, tipo_cuenta, numero_cuenta, monto)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (nombre_recibe, tipo_documento, documento, banco, tipo_cuenta, numero_cuenta, monto))
+            """, (nombre_det, tipo_doc, numero_doc, nombre_banco, tipo_cuenta, numero_cuenta, monto))
+            conn.commit()
+            
+            # Actualizar el saldo del cliente que recibe el dinero
+            cursor.execute("UPDATE clientes SET saldo = saldo + %s WHERE nombre = %s", (monto, nombre_det))
             conn.commit()
             
             # Guardar el id_banco en la sesión
             session['id_banco'] = cursor.lastrowid
             
-            flash('Envío a banco registrado exitosamente', 'success')
+            flash('Envío a banco registrado y saldo actualizado exitosamente', 'success')
         except Error as e:
             flash(f'Error al guardar los datos: {e}', 'danger')
         finally:
@@ -147,7 +173,7 @@ def envio_banco():
                 cursor.close()
                 conn.close()
         
-        return render_template('envio_banco.html')
+        return redirect(url_for('dashboard'))
 
     return render_template('envio_banco.html')
 
@@ -231,8 +257,106 @@ def logout():
     # Aquí puedes agregar la lógica para cerrar sesión, como eliminar la sesión del usuario
     return render_template('login.html')
 
+@app.route('/cajero')
+def cajero():
+    return render_template('cajero.html')
 
+@app.route('/finalizar_retiro', methods=['POST'])
+def finalizar_retiro():
+    data = request.get_json()
+    monto = data.get('monto')
+    telefono = session.get('telefono')  # Obtener el teléfono del cliente en sesión
 
+    if monto and telefono:
+        try:
+            # Conectar a la base de datos
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+
+            # Restar el monto del saldo del cliente
+            cursor.execute("UPDATE clientes SET saldo = saldo - %s WHERE telefono = %s", (monto, telefono))
+            conn.commit()
+
+            return jsonify({'success': True, 'message': 'Retiro realizado exitosamente.'})
+        except Error as e:
+            return jsonify({'success': False, 'message': f'Error al realizar el retiro: {e}'})
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+    else:
+        return jsonify({'success': False, 'message': 'Monto o teléfono no válidos.'})
+
+@app.route('/puntofi')
+def puntofi():
+    return render_template('puntofi.html')
+
+@app.route('/finalizar_pago', methods=['POST'])
+def finalizar_pago():
+    data = request.get_json()
+    monto = data.get('monto')
+    telefono = session.get('telefono')  # Obtener el teléfono del cliente en sesión
+
+    if monto and telefono:
+        try:
+            # Conectar a la base de datos
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+
+            # Restar el monto del saldo del cliente
+            cursor.execute("UPDATE clientes SET saldo = saldo - %s WHERE telefono = %s", (monto, telefono))
+            conn.commit()
+
+            return jsonify({'success': True, 'message': 'Pago realizado exitosamente.'})
+        except Error as e:
+            return jsonify({'success': False, 'message': f'Error al realizar el pago: {e}'})
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+    else:
+        return jsonify({'success': False, 'message': 'Monto o teléfono no válidos.'})
+
+@app.route('/pago_triA')
+def pago_triA():
+    return render_template('pago_triA.html')
+
+@app.route('/pago_aire')
+def pago_aire():
+    return render_template('pago_aire.html')
+
+@app.route('/movimientos')
+def movimientos():
+    return render_template('Movimientos.html')
+
+@app.route('/api/movimientos')
+def get_movimientos():
+    telefono = session.get('telefono')  # Obtener el teléfono del cliente en sesión
+    nombre = session.get('nombre')  # Obtener el nombre del cliente en sesión
+    if not telefono:
+        return jsonify({'success': False, 'message': 'No se encontró la sesión.'})
+
+    try:
+        # Conectar a la base de datos
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Consultar solo el teléfono del cliente
+        query = "SELECT telefono FROM clientes WHERE telefono = %s"
+        cursor.execute(query, (telefono,))
+        result = cursor.fetchone()
+
+        if result:
+            return jsonify({'success': True, 'telefono': result[0], 'nombre': nombre})  # Incluir el nombre
+        else:
+            return jsonify({'success': False, 'message': 'No se encontró el teléfono.'})
+
+    except Error as e:
+        return jsonify({'success': False, 'message': f'Error al obtener el teléfono: {e}'})
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True)

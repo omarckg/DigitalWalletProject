@@ -84,12 +84,11 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <a href="/dashboard" class="navbar-logo" style="color: white;">NECLI</a>
             <ul class="navbar-menu">
-                <li><a href="#home">Inicio</a></li>
-                <li><a href="#services">Servicios</a></li>
-                <li><a href="#about">Acerca de</a></li>
-                <li><a href="#contact">Contacto</a></li>
+                <li><a href="/dashboard">Inicio</a></li>
+                <li><a href='/factura'>Servicios</a></li>
+                <li><a href="/movimientos">Movimientos</a></li>
                 <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
             </ul>
         </div>
@@ -98,10 +97,10 @@
         <h1>Enviar a Banco</h1>
         <form method="POST" action="/envio_banco">
             <label for="nombre_recibe">Nombre de quien recibe</label>
-            <input type="text" id="nombre_recibe" name="nombre_recibe" placeholder="Nombre de quien recibe" required>
+            <input type="text" id="nombre_det" name="nombre_det" placeholder="Nombre de quien recibe" required>
 
             <label for="tipo_documento">Tipo de documento</label>
-            <select id="tipo_documento" name="tipo_documento" required>
+            <select id="tipo_doc" name="tipo_doc" required>
                 <option value="" disabled selected>Selecciona tipo de documento</option>
                 <option value="CC">Cédula de Ciudadanía</option>
                 <option value="TI">Tarjeta de Identidad</option>
@@ -110,10 +109,10 @@
             </select>
 
             <label for="documento">Documento de esa persona</label>
-            <input type="text" id="documento" name="documento" placeholder="Número de documento" required>
+            <input type="text" id="numero_doc" name="numero_doc" placeholder="Número de documento" required>
 
             <label for="banco">Banco</label>
-            <input type="text" id="banco" name="banco" placeholder="Nombre del banco" required>
+            <input type="text" id="nombre_banco"" name="nombre_banco" placeholder="Nombre del banco" required>
 
             <label for="tipo_cuenta">Tipo de cuenta</label>
             <select id="tipo_cuenta" name="tipo_cuenta" required>

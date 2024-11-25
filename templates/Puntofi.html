@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cajero: Corresponsales</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            margin-top: 50px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            background-color: #4a154b;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            
+        }
+        .button:hover {
+            background-color: #6a1b9a;
+        } 
+        body {
+            background-color: #f8d3e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .navbar {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-menu {
+            list-style: none;
+            display: flex;
+        }
+        .navbar-menu li {
+            margin: 0 15px;
+        }
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+        }
+        .container {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo" style="color: white;">NECLI</a>
+            <ul class="navbar-menu">
+                <li><a href="/dashboard">Inicio</a></li>
+                <li><a href='/factura'>Servicios</a></li>
+                <li><a href="/movimientos">Movimientos</a></li>
+                <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container" style="margin-bottom: 20px;">
+        <h1>Retiro de Punto Físico</h1>
+        <form id="retiroForm">
+            <label for="monto">¿Cuánto deseas retirar?</label>
+            <input type="number" id="monto" name="monto" required>
+            <button type="button" class="button" style="margin-top: 10px;" onclick="generarCodigo()">Generar Código</button>
+        </form>
+        <div id="codigoContainer" style="display: none;">
+            <h2>Código: <span id="codigo"></span></h2>
+            <button class="button" onclick="finalizarRetiro()">Retiro Finalizado</button>
+        </div>
+    </div>
+
+    <script>
+        function generarCodigo() {
+            const codigo = Math.floor(100000 + Math.random() * 900000); // Genera un código de 6 dígitos
+            document.getElementById('codigo').innerText = codigo;
+            document.getElementById('codigoContainer').style.display = 'block';
+        }
+
+        function finalizarRetiro() {
+            const monto = document.getElementById('monto').value; // Obtiene el monto del input
+            if (monto) {
+                // Enviar el monto al servidor para restar del saldo
+                fetch('/finalizar_retiro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ monto: monto }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message); // Muestra el mensaje de éxito o error
+                    if (data.success) {
+                        // Redirigir o actualizar la página si es necesario
+                        window.location.reload(); // Recarga la página para reflejar el nuevo saldo
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            } else {
+                alert('Por favor, ingresa un monto válido.');
+            }
+        }
+    </script>
+</body>
+</html>

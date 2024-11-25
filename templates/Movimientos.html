@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8d3e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            margin-top: 50px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            background-color: #d5006d;
+            color: white;
+            padding: 10px;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-menu {
+            list-style: none;
+            display: flex;
+        }
+        .navbar-menu li {
+            margin: 0 15px;
+        }
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4a154b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo" style="color: white;">NECLI</a>
+            <ul class="navbar-menu">
+                <li><a href="/dashboard">Inicio</a></li>
+                <li><a href='/factura'>Servicios</a></li>
+                <li><a href="/movimientos">Movimientos</a></li>
+                <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Movimientos Realizados</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Número de Sesión</th>
+                    <th>Nombre</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody id="movimientosTableBody">
+                <!-- Aquí se llenarán los movimientos -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Suponiendo que tienes una API que devuelve los movimientos
+        fetch('/api/movimientos')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('movimientosTableBody');
+                if (data.success) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.telefono}</td>
+                        <td>${data.nombre}</td>
+                    `;
+                    tableBody.appendChild(row);
+                } else {
+                    console.error(data.message);
+                }
+            })
+            .catch(error => console.error('Error al cargar el teléfono:', error));
+    </script>
+</body>
+</html>

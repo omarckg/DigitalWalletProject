@@ -62,6 +62,11 @@
             width: 30%; /* Ajusta el ancho según sea necesario */
             margin: 10px;
             cursor: pointer; /* Cambia el cursor al pasar sobre la tarjeta */
+            transition: transform 0.5s ease, box-shadow 0.5s ease; /* Transición para la animación */
+        }
+        .service-card:hover {
+            transform: translateY(-5px); /* Eleva la tarjeta al pasar el mouse */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Aumenta la sombra */
         }
         .service-card img {
             width: 50px; /* Ajusta el tamaño del ícono */
@@ -120,12 +125,11 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="/dashboard" class="navbar-logo" style="color: white;">Mi Banco</a>
+            <a href="/dashboard" class="navbar-logo" style="color: white;">NECLI</a>
             <ul class="navbar-menu">
-                <li><a href="#home">Inicio</a></li>
-                <li><a href="#services">Servicios</a></li>
-                <li><a href="#about">Acerca de</a></li>
-                <li><a href="#contact">Contacto</a></li>
+                <li><a href="/dashboard">Inicio</a></li>
+                <li><a href='/factura'>Servicios</a></li>
+                <li><a href="/movimientos">Movimientos</a></li>
                 <li><a href="/logout" style="color: white;">Cerrar Sesión</a></li>
             </ul>
         </div>
@@ -135,9 +139,9 @@
             <h2>Hola, {{ session['nombre'] }}</h2>
             <p>Depósito Bajo Monto</p>
             
-            <h1>$ 0</h1>
-            <p>Total $ 0</p>
-            <button class="button">Recarga</button>
+            <h1>${{ saldo }}</h1>
+            
+            <button class="button" onclick="window.location.href='/recarga'"">Recarga</button>
         </div>
         <h3>Servicios</h3>
         <div class="services">
@@ -175,8 +179,12 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('withdrawModal')">&times;</span>
             <h2>Opciones para retiros</h2>
-            <button class="button" style="margin-bottom: 10px;">Punto físico</button>
-            <button class="button" style="margin-bottom: 10px;">Cajero: Corresponsales</button>
+            <a href="{{ url_for('puntofi') }}">
+                <button class="button" style="margin-bottom: 10px;">Punto físico</button>
+            </a>
+            <a href="{{ url_for('cajero') }}">
+                <button class="button" style="margin-bottom: 10px;">Cajero: Corresponsales</button>
+            </a>
         </div>
     </div>
 
