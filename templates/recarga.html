@@ -168,14 +168,14 @@
 
         function confirmRecharge() {
             const monto = document.getElementById('monto').value; // Obtiene el monto de la recarga
-            if (monto) {
+            if (monto && monto > 0) { // Verifica que el monto sea válido y mayor que 0
                 // Enviar el monto al servidor para restar del saldo
                 fetch('/finalizar_pago', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ monto: monto }),
+                    body: JSON.stringify({ monto: parseFloat(monto) }), // Asegúrate de enviar un número
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -187,9 +187,10 @@
                 })
                 .catch((error) => {
                     console.error('Error:', error);
+                    alert('Ocurrió un error al procesar la recarga.'); // Mensaje de error
                 });
             } else {
-                alert('Por favor, ingresa un monto válido.');
+                alert('Por favor, ingresa un monto válido y mayor que 0.'); // Mensaje de error
             }
         }
     </script>

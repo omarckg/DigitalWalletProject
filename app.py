@@ -343,14 +343,17 @@ def finalizar_pago():
             cursor.execute("SELECT saldo FROM clientes WHERE telefono = %s", (telefono,))
             saldo_actual = cursor.fetchone()
 
-            if saldo_actual and saldo_actual[0] >= monto:  # Verificar si hay suficiente saldo
-                # Restar el monto del saldo del cliente
-                cursor.execute("UPDATE clientes SET saldo = saldo - %s WHERE telefono = %s", (monto, telefono))
-                conn.commit()
+            if saldo_actual:
+                if saldo_actual[0] >= monto:  # Verificar si hay suficiente saldo
+                    # Restar el monto del saldo del cliente
+                    cursor.execute("UPDATE clientes SET saldo = saldo - %s WHERE telefono = %s", (monto, telefono))
+                    conn.commit()
 
-                return jsonify({'success': True, 'message': 'Pago realizado exitosamente.'})
+                    return jsonify({'success': True, 'message': 'Pago realizado exitosamente.'})
+                else:
+                    return jsonify({'success': False, 'message': 'Saldo insuficiente para realizar el pago.'})
             else:
-                return jsonify({'success': False, 'message': 'Saldo insuficiente para realizar el pago.'})
+                return jsonify({'success': False, 'message': 'No se encontró el saldo del cliente.'})
 
         except Error as e:
             return jsonify({'success': False, 'message': f'Error al realizar el pago: {e}'})
