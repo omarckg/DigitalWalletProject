@@ -3,6 +3,7 @@ import bcrypt
 import os
 import mysql.connector
 from mysql.connector import Error
+from decimal import Decimal
 
 app = Flask(__name__)
 
@@ -103,26 +104,43 @@ def envio_necli():
         monto = request.form['monto']
         mensaje = request.form['mensaje']
         
+        # Convertir el monto a Decimal
+        monto = Decimal(monto)  # Asegúrate de que el monto sea un número decimal
+
+        # Obtener el teléfono del usuario en sesión
+        telefono_usuario = session.get('telefono')
+
         try:
             # Conectar a la base de datos
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             
-            # Insertar en la tabla necli
-            cursor.execute("INSERT INTO necli (telefono, monto, mensaje) VALUES (%s, %s, %s)", (telefono, monto, mensaje))
-            conn.commit()
-            
-            # Obtener el id del nuevo registro en necli
-            id_necli = cursor.lastrowid
-            
-            # Guardar el id_necli en la sesión
-            session['id_necli'] = id_necli
-            
-            # Actualizar el saldo del cliente que recibe el dinero
-            cursor.execute("UPDATE clientes SET saldo = saldo + %s WHERE telefono = %s", (monto, telefono))
-            conn.commit()
-            
-            flash('Envío registrado exitosamente', 'success')
+            # Verificar el saldo del usuario en sesión
+            cursor.execute("SELECT saldo FROM clientes WHERE telefono = %s", (telefono_usuario,))
+            saldo_actual = cursor.fetchone()
+
+            if saldo_actual and saldo_actual[0] >= monto:  # Verificar si hay suficiente saldo
+                # Insertar en la tabla necli
+                cursor.execute("INSERT INTO necli (telefono, monto, mensaje) VALUES (%s, %s, %s)", (telefono, monto, mensaje))
+                conn.commit()
+                
+                # Obtener el id del nuevo registro en necli
+                id_necli = cursor.lastrowid
+                
+                # Guardar el id_necli en la sesión
+                session['id_necli'] = id_necli
+                
+                # Actualizar el saldo del cliente que recibe el dinero
+                cursor.execute("UPDATE clientes SET saldo = saldo + %s WHERE telefono = %s", (monto, telefono))
+                conn.commit()
+
+                # Descontar el monto del saldo del usuario en sesión
+                cursor.execute("UPDATE clientes SET saldo = saldo - %s WHERE telefono = %s", (monto, telefono_usuario))
+                conn.commit()
+                
+                flash('Envío registrado exitosamente', 'success')
+            else:
+                flash('Saldo insuficiente para realizar el envío.', 'danger')
         except Error as e:
             flash(f'Error al guardar los datos: {e}', 'danger')
         finally:
@@ -146,26 +164,44 @@ def envio_banco():
         numero_cuenta = request.form['numero_cuenta']
         monto = request.form['monto']
         
+        # Convertir el monto a Decimal
+        
+        monto = Decimal(monto)  # Asegúrate de que el monto sea un número decimal
+
+        # Obtener el teléfono del usuario en sesión
+        telefono_usuario = session.get('telefono')
+
         try:
             # Conectar a la base de datos
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             
-            # Insertar en la tabla correspondiente
-            cursor.execute("""
-                INSERT INTO banco (nombre_det, tipo_doc, numero_doc, nombre_banco, tipo_cuenta, numero_cuenta, monto)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (nombre_det, tipo_doc, numero_doc, nombre_banco, tipo_cuenta, numero_cuenta, monto))
-            conn.commit()
-            
-            # Actualizar el saldo del cliente que recibe el dinero
-            cursor.execute("UPDATE clientes SET saldo = saldo + %s WHERE nombre = %s", (monto, nombre_det))
-            conn.commit()
-            
-            # Guardar el id_banco en la sesión
-            session['id_banco'] = cursor.lastrowid
-            
-            flash('Envío a banco registrado y saldo actualizado exitosamente', 'success')
+            # Verificar el saldo del usuario en sesión
+            cursor.execute("SELECT saldo FROM clientes WHERE telefono = %s", (telefono_usuario,))
+            saldo_actual = cursor.fetchone()
+
+            if saldo_actual and saldo_actual[0] >= monto:  # Verificar si hay suficiente saldo
+                # Insertar en la tabla correspondiente
+                cursor.execute("""
+                    INSERT INTO banco (nombre_det, tipo_doc, numero_doc, nombre_banco, tipo_cuenta, numero_cuenta, monto)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (nombre_det, tipo_doc, numero_doc, nombre_banco, tipo_cuenta, numero_cuenta, monto))
+                conn.commit()
+                
+                # Actualizar el saldo del cliente que recibe el dinero
+                cursor.execute("UPDATE clientes SET saldo = saldo + %s WHERE nombre = %s", (monto, nombre_det))
+                conn.commit()
+                
+                # Descontar el monto del saldo del usuario en sesión
+                cursor.execute("UPDATE clientes SET saldo = saldo - %s WHERE telefono = %s", (monto, telefono_usuario))
+                conn.commit()
+
+                # Guardar el id_banco en la sesión
+                session['id_banco'] = cursor.lastrowid
+                
+                flash('Envío a banco registrado y saldo actualizado exitosamente', 'success')
+            else:
+                flash('Saldo insuficiente para realizar el envío.', 'danger')
         except Error as e:
             flash(f'Error al guardar los datos: {e}', 'danger')
         finally:
@@ -303,11 +339,19 @@ def finalizar_pago():
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
 
-            # Restar el monto del saldo del cliente
-            cursor.execute("UPDATE clientes SET saldo = saldo - %s WHERE telefono = %s", (monto, telefono))
-            conn.commit()
+            # Verificar el saldo actual del cliente
+            cursor.execute("SELECT saldo FROM clientes WHERE telefono = %s", (telefono,))
+            saldo_actual = cursor.fetchone()
 
-            return jsonify({'success': True, 'message': 'Pago realizado exitosamente.'})
+            if saldo_actual and saldo_actual[0] >= monto:  # Verificar si hay suficiente saldo
+                # Restar el monto del saldo del cliente
+                cursor.execute("UPDATE clientes SET saldo = saldo - %s WHERE telefono = %s", (monto, telefono))
+                conn.commit()
+
+                return jsonify({'success': True, 'message': 'Pago realizado exitosamente.'})
+            else:
+                return jsonify({'success': False, 'message': 'Saldo insuficiente para realizar el pago.'})
+
         except Error as e:
             return jsonify({'success': False, 'message': f'Error al realizar el pago: {e}'})
         finally:
